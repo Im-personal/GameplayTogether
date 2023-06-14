@@ -1,60 +1,56 @@
-import asyncio
-import websockets
-
-senders = set()
-receivers = set()
+import socket
+import threading
 
 
-async def send_video(websocket, path):
-    global receivers
-    global senders
+class Device:
+    def __init__(self,role, sock):
 
-    # Check if the sender is already connected
-    if websocket in senders:
-        return
+        self.role = role
+        self.sock = sock
 
-    # Check if the receiver is already connected
-    if websocket in receivers:
-        return
 
-    # Receive the device type
-    device_type = await websocket.recv()
+class StreamServer:
+    def __init__(self):
+        self.devices = []
+        self.lock = threading.Lock()
 
-    if device_type == "sender":
-        senders.add(websocket)
-        print("Sender connected")
-
-        # Continue processing the video stream
+    def handle_client(self, conn, addr):
+        data = conn.recv(1024).decode()
+        if not data:
+            return
+        role = data
+        with self.lock:
+            self.devices.append(Device(role, conn))
+        conn.sendall(b'conn')  # Отправляем сообщение об успешном подключении
         while True:
-            try:
-
-                # Receive the video frame
-                frame = await websocket.recv()
-
-                # Forward the frame to the receiver(s)
-                for receiver in receivers:
-                    await receiver.send(frame)
-
-            except websockets.exceptions.ConnectionClosed:
+            data = conn.recv(1024).decode()
+            print(data)
+            if not data:
                 break
+            if data == 'startStream':
+                sender = next((d for d in self.devices if d.role == 'sender'), None)
+                receiver = next((d for d in self.devices if d.role == 'receiver'), None)
+                if sender and receiver:
+                    threading.Thread(target=self.stream, args=(sender.sock, receiver.sock)).start()
+                    break
 
-        senders.remove(websocket)
-        print("Sender disconnected")
+    def stream(self, sender_sock, receiver_sock):
+        while True:
+            data = sender_sock.recv(1024)
+            if not data:
+                break
+            receiver_sock.sendall(data)
 
-    elif device_type == "receiver":
-        receivers.add(websocket)
-        print("Receiver connected")
-
-        # Wait for the connection to close
-        await websocket.wait_closed()
-
-        receivers.remove(websocket)
-        print("Receiver disconnected")
-
-
-async def main():
-    async with websockets.serve(send_video, 'localhost', 8000):
-        await asyncio.Future()  # run forever
+    def run(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('', 8081))
+            s.listen()
+            while True:
+                conn, addr = s.accept()
+                threading.Thread(target=self.handle_client, args=(conn, addr)).start()
 
 
-asyncio.run(main())
+if __name__ == '__main__':
+    server = StreamServer()
+    server.run()
+    print("started!")

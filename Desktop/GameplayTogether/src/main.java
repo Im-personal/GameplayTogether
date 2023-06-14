@@ -11,7 +11,7 @@ public class main {
 
     static private JFrame inputFrame;
     static private JFrame chatFrame;
-    static private StreamSender stream;
+    static private ServerConnection stream;
 
     public static void main(String[] args) {
         initInputFrame();
@@ -29,22 +29,24 @@ public class main {
         JButton btn_mute_int = new JButton("Mute interlocutor");
 
         btn_mute.addActionListener(e -> {
-
+            /*
             stream.imMuted=!stream.imMuted;
             if(stream.imMuted)
                 btn_mute.setText("Unmute me");
             else
                 btn_mute.setText("Mute me");
-
+            //*/
         });
 
         btn_mute_int.addActionListener(e -> {
-
+            /*
             stream.intMuted=!stream.intMuted;
             if(stream.intMuted)
                 btn_mute_int.setText("Unmute interlocutor");
             else
                 btn_mute_int.setText("Mute interlocutor");
+
+             */
         });
 
         JLabel l_debugString = new JLabel("None\nNone\nNone");
@@ -102,16 +104,31 @@ public class main {
         btn_connect.addActionListener(e -> {
             btn_connect.setText("Connecting...");
 
-            try {
-                stream = new StreamSender(tf_link.getText(),Integer.parseInt(tf_width.getText()),
-                        Integer.parseInt(tf_height.getText()),Integer.parseInt(tf_bitrate.getText()),
-                        Integer.parseInt(tf_samplerate.getText()));
-            } catch (DeploymentException | IOException | URISyntaxException | InterruptedException deploymentException) {
-                deploymentException.printStackTrace();
-            }
+            stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_width.getText()));
+            stream.start();
+            stream.send("sender");
 
-            //inputFrame.setVisible(false);
-            //chatFrame.setVisible(true);
+            new Thread(() -> {
+                boolean finish = true;
+                long start = System.currentTimeMillis();
+                while(finish)
+                {
+                    System.out.println("ye");
+                    if(stream.connected)
+                    {
+                        inputFrame.setVisible(false);
+                        chatFrame.setVisible(true);
+                        finish=false;
+                    }
+
+                    if(System.currentTimeMillis()-start>=5000) {
+                        finish = false;
+                        btn_connect.setText("Connect");
+                    }
+
+                }
+            }).start();
+
         });
 
 
