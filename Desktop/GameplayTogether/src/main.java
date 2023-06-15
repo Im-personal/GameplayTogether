@@ -75,13 +75,13 @@ public class main {
         JTextField tf_link = new JTextField();
         JTextField tf_bitrate = new JTextField();
         JTextField tf_samplerate = new JTextField();
-        JTextField tf_width = new JTextField();
+        JTextField tf_port = new JTextField();
         JTextField tf_height = new JTextField();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) screenSize.getWidth();
         int height = (int) screenSize.getHeight();
-        tf_width.setText(width+"");
+        tf_port.setText(width+"");
         tf_height.setText(height+"");
         tf_bitrate.setText(8000000+"");
         tf_samplerate.setText(44+"");
@@ -89,10 +89,10 @@ public class main {
         inputFrame.setLayout(new GridLayout(6,2));
         inputFrame.add(new JLabel("Server: "));
         inputFrame.add(tf_link);
-        inputFrame.add(new JLabel("Width: "));
-        inputFrame.add(tf_width);
-        inputFrame.add(new JLabel("Height: "));
-        inputFrame.add(tf_height);
+        inputFrame.add(new JLabel("Port: "));
+        inputFrame.add(tf_port);
+        /*inputFrame.add(new JLabel("Height: "));
+        inputFrame.add(tf_height);*/
         inputFrame.add(new JLabel("Bitrate: "));
         inputFrame.add(tf_bitrate);
         inputFrame.add(new JLabel("Samplerate: "));
@@ -104,10 +104,8 @@ public class main {
         btn_connect.addActionListener(e -> {
             btn_connect.setText("Connecting...");
 
-            stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_width.getText()));
-            stream.start();
-            stream.send("sender");
-
+            stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_port.getText()));
+            if(stream.start()&&stream.send("sender"))
             new Thread(() -> {
                 boolean finish = true;
                 long start = System.currentTimeMillis();
@@ -121,13 +119,15 @@ public class main {
                         finish=false;
                     }
 
-                    if(System.currentTimeMillis()-start>=5000) {
+                    if(System.currentTimeMillis()-start>=3000) {
                         finish = false;
                         btn_connect.setText("Connect");
                     }
 
                 }
             }).start();
+            else btn_connect.setText("Connect");
+
 
         });
 
