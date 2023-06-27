@@ -76,25 +76,25 @@ public class main {
         JTextField tf_bitrate = new JTextField();
         JTextField tf_samplerate = new JTextField();
         JTextField tf_port = new JTextField();
-        JTextField tf_height = new JTextField();
+        JTextField tf_audiobitrate = new JTextField();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) screenSize.getWidth();
-        int height = (int) screenSize.getHeight();
-        tf_port.setText(width+"");
-        tf_height.setText(height+"");
-        tf_bitrate.setText(8000000+"");
-        tf_samplerate.setText(44+"");
+
+        tf_port.setText(8081+"");
+        tf_audiobitrate.setText(128+"");
+        tf_bitrate.setText(800+"");
+        tf_samplerate.setText(44100+"");
 
         inputFrame.setLayout(new GridLayout(6,2));
         inputFrame.add(new JLabel("Server: "));
         inputFrame.add(tf_link);
         inputFrame.add(new JLabel("Port: "));
         inputFrame.add(tf_port);
-        /*inputFrame.add(new JLabel("Height: "));
-        inputFrame.add(tf_height);*/
+        /**/
         inputFrame.add(new JLabel("Bitrate: "));
         inputFrame.add(tf_bitrate);
+        inputFrame.add(new JLabel("Audio Bitrate: "));
+        inputFrame.add(tf_audiobitrate);
         inputFrame.add(new JLabel("Samplerate: "));
         inputFrame.add(tf_samplerate);
 
@@ -104,28 +104,10 @@ public class main {
         btn_connect.addActionListener(e -> {
             btn_connect.setText("Connecting...");
 
-            stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_port.getText()));
-            if(stream.start()&&stream.send("sender"))
-            new Thread(() -> {
-                boolean finish = true;
-                long start = System.currentTimeMillis();
-                while(finish)
-                {
-                    System.out.println("ye");
-                    if(stream.connected)
-                    {
-                        inputFrame.setVisible(false);
-                        chatFrame.setVisible(true);
-                        finish=false;
-                    }
-
-                    if(System.currentTimeMillis()-start>=3000) {
-                        finish = false;
-                        btn_connect.setText("Connect");
-                    }
-
-                }
-            }).start();
+            stream = new ServerConnection(tf_link.getText());
+            if(stream.start()){
+                //stream.sendMessage("hi");
+            }
             else btn_connect.setText("Connect");
 
 

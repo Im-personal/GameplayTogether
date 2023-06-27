@@ -1,89 +1,36 @@
+
+import org.json.JSONObject;
+import javax.websocket.*;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
 
+@ClientEndpoint
 public class ServerConnection {
-    private final String url;
-    private final int port;
-    private Socket socket;
-    private InputStream in;
-    private OutputStream out;
-    private volatile boolean running;
+    private static CountDownLatch latch;
 
-    public ServerConnection(String url, int port) {
+    private String url;
+
+    public ServerConnection(String url)
+    {
         this.url = url;
-        this.port = port;
     }
 
-    public boolean start() {
-        try {
-            socket = new Socket(url, port);
-            in = socket.getInputStream();
-            out = socket.getOutputStream();
-            running = true;
-            new Thread(this::receive).start();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
-    private void receive() {
-        byte[] buffer = new byte[1024];
-        while (running) {
-            try {
-                int bytesRead = in.read(buffer);
-                if (bytesRead == -1) {
-                    break;
-                }
-                String data = new String(buffer, 0, bytesRead);
-
-                processData(data);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
-        }
-    }
-
-    public boolean send(String data) {
-        try {
-            out.write(data.getBytes());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean connected=false;
-
-    private void processData(String data)
+    public boolean start()
     {
 
-
-        switch(data)
-        {
-            case "conn":
-                connected=true;
-                break;
-            default:
-                System.out.print(data);
-                break;
-        }
-    }
-
-    public boolean stop() {
-        running = false;
-        try {
-            socket.close();
+        int port = 8080;
+        try (Socket socket = new Socket(url, port)) {
+            System.out.println("yay");
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            System.err.println("Error connecting to server: " + e.getMessage());
         }
+
+        return false;
     }
+
 }
