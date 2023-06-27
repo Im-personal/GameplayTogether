@@ -12,17 +12,17 @@ public class ServerConnection {
     private static CountDownLatch latch;
 
     private String url;
+    private int port;
 
-    public ServerConnection(String url)
+    public ServerConnection(String url, int port)
     {
         this.url = url;
+        this.port = port;
     }
 
 
     public boolean start()
     {
-
-        int port = 8080;
         try (Socket socket = new Socket(url, port)) {
             System.out.println("yay");
             return true;

@@ -80,7 +80,7 @@ public class main {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        tf_port.setText(8081+"");
+        tf_port.setText(8080+"");
         tf_audiobitrate.setText(128+"");
         tf_bitrate.setText(800+"");
         tf_samplerate.setText(44100+"");
@@ -104,9 +104,15 @@ public class main {
         btn_connect.addActionListener(e -> {
             btn_connect.setText("Connecting...");
 
-            stream = new ServerConnection(tf_link.getText());
-            if(stream.start()){
-                //stream.sendMessage("hi");
+            //stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_bitrate.getText()));
+            if(true){
+                String url = tf_link.getText();
+                String port = tf_port.getText();
+                int bitrate = Integer.parseInt(tf_bitrate.getText());
+                int audiobitrate = Integer.parseInt(tf_audiobitrate.getText());
+                int samplerate = Integer.parseInt(tf_samplerate.getText());
+                ScreenStreamer ss = new ScreenStreamer(url+":"+port,bitrate,audiobitrate,samplerate);
+                ss.start();
             }
             else btn_connect.setText("Connect");
 
