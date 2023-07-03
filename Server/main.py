@@ -39,4 +39,5 @@ def run(server_class=HTTPServer, handler_class=MyServer, port=8080):
 # Точка входа в программу
 if __name__ == '__main__':
     # Запускаем сервер
+    print("program started")
     run()
