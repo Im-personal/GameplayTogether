@@ -1,25 +1,42 @@
-import socket
+# Импортируем необходимые модули
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import logging
 
-def handle_client(client_socket, client_address):
-    print(f"Accepted connection from {client_address}")
-    while True:
-        data = client_socket.recv(1024)
-        if not data:
-            break
-        # здесь можно добавить код для пересылки данных на другое устройство
-        print(data)
-    print("process closed")
-    client_socket.close()
+# Определяем класс обработчика HTTP-запросов
+class MyServer(BaseHTTPRequestHandler):
+    # Метод для обработки HTTP POST-запросов
+    def do_POST(self):
+        # Получаем длину содержимого из заголовков запроса
+        content_length = int(self.headers['Content-Length'])
+        # Читаем данные из тела запроса
+        data = self.rfile.read(content_length)
 
-def start_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('0.0.0.0', 8080))
-    server_socket.listen(2)
-    print("Server is listening on port 8080")
-    while True:
-        client_socket, client_address = server_socket.accept()
-        handle_client(client_socket, client_address)
+        # Выводим сообщение в лог о полученных данных
+        logging.info(f'Received data: {len(data)} bytes')
+        # Отправляем ответ 200 OK
+        self.send_response(200)
+        self.end_headers()
 
-if __name__ == "__main__":
-    print("process started")
-    start_server()
+# Функция для запуска сервера
+def run(server_class=HTTPServer, handler_class=MyServer, port=8080):
+    # Настраиваем логирование
+    logging.basicConfig(level=logging.INFO)
+    # Создаем экземпляр сервера
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    # Выводим сообщение в лог о запуске сервера
+    logging.info(f'Starting server on port {port}')
+    try:
+        # Запускаем сервер
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    # Останавливаем сервер
+    httpd.server_close()
+    # Выводим сообщение в лог об остановке сервера
+    logging.info('Stopping server')
+
+# Точка входа в программу
+if __name__ == '__main__':
+    # Запускаем сервер
+    run()

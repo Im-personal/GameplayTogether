@@ -2,14 +2,20 @@ import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class ScreenStreamer {
     private MediaPlayer mediaPlayer;
     private String media;
     private String[] options;
+    private String url;
     private void setUp(String url, int bitrate, int audioBitrate, int sampleRate, float scale ) {
         MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
         mediaPlayer =  mediaPlayerFactory.mediaPlayers().newMediaPlayer();
 
+        this.url = url;
 
         mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
             @Override
@@ -27,9 +33,32 @@ public class ScreenStreamer {
 
     }
 
+    public void start(boolean ahha)
+    {
+        try {
+            String command = "ffmpeg -list_devices true -f dshow -i dummy";
+            Process p = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void start(){
-        mediaPlayer.media().play(media, options);
+
+        String audio = "@device_cm_{33D9A762-90C8-11D0-BD43-00A0C911CE86}\\wave_{24E93A82-6B5E-4CD9-AA2B-1437E27014A0}";
+
+        String command = "ffmpeg -f gdigrab -framerate 30 -i desktop -f dshow -i audio=\""+audio+"\" -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 160k -ac 2 -ar 44100 -f flv "+url;
+        try {
+            Process p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void stop()
