@@ -12,7 +12,7 @@ class MyServer(BaseHTTPRequestHandler):
         data = self.rfile.read(content_length)
 
         # Выводим сообщение в лог о полученных данных
-        logging.info(f'Received data: {len(data)} bytes')
+        print(f'Received data: {len(data)} bytes')
         # Отправляем ответ 200 OK
         self.send_response(200)
         self.end_headers()
@@ -25,7 +25,7 @@ def run(server_class=HTTPServer, handler_class=MyServer, port=8080):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     # Выводим сообщение в лог о запуске сервера
-    logging.info(f'Starting server on port {port}')
+    print(f'Starting server on port {port}')
     try:
         # Запускаем сервер
         httpd.serve_forever()
@@ -34,7 +34,7 @@ def run(server_class=HTTPServer, handler_class=MyServer, port=8080):
     # Останавливаем сервер
     httpd.server_close()
     # Выводим сообщение в лог об остановке сервера
-    logging.info('Stopping server')
+    print('Stopping server')
 
 # Точка входа в программу
 if __name__ == '__main__':
