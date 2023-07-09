@@ -41,7 +41,8 @@ def handle_client(client_socket, client_address):
                 if not data:
                     break
             else:
-                print("super nuthin")
+                #print("super nuthin")
+                pass
 
         except RuntimeError as e:
             print(e)
