@@ -11,7 +11,7 @@ public class main {
 
     static private JFrame inputFrame;
     static private JFrame chatFrame;
-    static private ServerConnection stream;
+    static private ScreenStreamer stream;
 
     public static void main(String[] args) {
         initInputFrame();
@@ -80,9 +80,10 @@ public class main {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
+        tf_link.setText("http//localhost");
         tf_port.setText(8080+"");
         tf_audiobitrate.setText(128+"");
-        tf_bitrate.setText(800+"");
+        tf_bitrate.setText(3000+"");
         tf_samplerate.setText(44100+"");
 
         inputFrame.setLayout(new GridLayout(6,2));
@@ -104,15 +105,15 @@ public class main {
         btn_connect.addActionListener(e -> {
             btn_connect.setText("Connecting...");
 
-            //stream = new ServerConnection(tf_link.getText(),Integer.parseInt(tf_bitrate.getText()));
-            if(true){
-                String url = tf_link.getText();
-                String port = tf_port.getText();
-                int bitrate = Integer.parseInt(tf_bitrate.getText());
-                int audiobitrate = Integer.parseInt(tf_audiobitrate.getText());
-                int samplerate = Integer.parseInt(tf_samplerate.getText());
-                ScreenStreamer ss = new ScreenStreamer(url+":"+port,bitrate,audiobitrate,samplerate);
-                ss.start();
+            String url = tf_link.getText();
+            int port = Integer.parseInt(tf_port.getText());
+            int bitrate = Integer.parseInt(tf_bitrate.getText());
+            int audiobitrate = Integer.parseInt(tf_audiobitrate.getText());
+            int samplerate = Integer.parseInt(tf_samplerate.getText());
+
+            stream = new ScreenStreamer(url+":"+port,bitrate, audiobitrate, samplerate);
+            if(stream.startConnection(url,port)){
+
             }
             else btn_connect.setText("Connect");
 
