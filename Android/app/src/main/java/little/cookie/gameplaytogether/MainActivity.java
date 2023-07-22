@@ -34,12 +34,16 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import dalvik.system.DexClassLoader;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isStarted = false;
 
+    private Class<?> gamepadClass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,6 +177,32 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("application/zip");
         launcher.launch(intent);
+
+
+    }
+
+    private void loadClass(ZipEntry entry, ZipInputStream zipInputStream)
+    {
+        try {
+            File tempFile = File.createTempFile("temp_class", ".dex", getCacheDir());
+            tempFile.deleteOnExit();
+
+            // Сохраните содержимое файла класса во временном файле
+            try (OutputStream os = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = zipInputStream.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+            }
+
+            String dexOutputDir = getApplicationInfo().dataDir;
+            DexClassLoader classLoader = new DexClassLoader(tempFile.getAbsolutePath(), dexOutputDir, null, getClassLoader());
+         gamepadClass = classLoader.loadClass("com.example.MyClass");
+
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
