@@ -57,9 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tw_name;
     private ActivityResultLauncher<Intent>  launcher;
 
-    private boolean isStarted = false;
 
-    private Class<?> gamepadClass;
+    static Class<?> gamepadClass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         loadSharedPreferences();
         setOnClick();
+
         initStuff();
+
     }
 
     private void initStuff() {
@@ -92,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        findViewById(R.id.button).setOnClickListener(view -> {
+            Intent start = new Intent(this,GameplayActivity.class);
+            this.startActivity(start);
+        });
 
     }
 
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void loadClass(ZipEntry entry, ZipInputStream zipInputStream)
+    private void loadClass(ZipInputStream zipInputStream,String name)
     {
         try {
             File tempFile = File.createTempFile("temp_class", ".dex", getCacheDir());
@@ -198,7 +204,10 @@ public class MainActivity extends AppCompatActivity {
 
             String dexOutputDir = getApplicationInfo().dataDir;
             DexClassLoader classLoader = new DexClassLoader(tempFile.getAbsolutePath(), dexOutputDir, null, getClassLoader());
-         gamepadClass = classLoader.loadClass("com.example.MyClass");
+
+            gamepadClass = classLoader.loadClass("little.cookie.gameplaytogether.controllers."+name);
+
+            Log.d("dataforme","class is created!");
 
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -221,9 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     ImageView imageView = findViewById(R.id.gameImage);
                     imageView.setImageBitmap(bitmap);
                     Log.d("dataforme","there is image!");
-                }else {
-                    Log.d("dataforme","there is no image!");
-                }
+                }else
                 if(zipEntry.getName().endsWith(".txt"))
                 {
 
@@ -235,9 +242,22 @@ public class MainActivity extends AppCompatActivity {
                         stringBuilder.append('\n');
                     }
                     name = stringBuilder.toString();
+                    Log.d("dataforme","there is name!");
 
 
+                }else if(zipEntry.getName().endsWith(".dex"))
+                {
+                    String path = zipEntry.getName().replace(".dex","");
+                    String classname;
+                    int index = path.lastIndexOf('/');
+                    if (index != -1) {
+                        classname = path.substring(index + 1);
+                    } else {
+                        classname = path;
+                    }
 
+
+                    loadClass(zipInputStream,classname);
                 }
             }
             zipInputStream.close();

@@ -76,7 +76,6 @@
         android:layout_height="61dp"
         android:text="add"
         android:textSize="@dimen/mainTextSize"
-        app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintStart_toEndOf="@+id/spinner"
         app:layout_constraintTop_toTopOf="@+id/spinner" />
 </androidx.constraintlayout.widget.ConstraintLayout>
