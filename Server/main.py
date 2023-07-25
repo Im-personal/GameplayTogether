@@ -56,10 +56,12 @@ def handle_client(client_socket, client_address):
 
 
 def process_sender(data):
+    print("process_receiver")
     pass
 
 
 def process_receiver(data, socket):
+    print("process_receiver")
     socket.send(data)
     pass
 

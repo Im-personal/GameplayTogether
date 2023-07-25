@@ -86,10 +86,11 @@ public class ScreenStreamer {
 
             while (isWaiting)
             {
-
+                    System.out.println("Waiting");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
                     String line;
+
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
                     }
