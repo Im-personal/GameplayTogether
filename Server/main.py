@@ -62,7 +62,7 @@ def process_sender(data):
 
 def process_receiver(data, socket):
     print("process_receiver")
-    socket.send(data)
+    socket.sendall(data)
     pass
 
 

@@ -89,11 +89,14 @@ public class ScreenStreamer {
                     System.out.println("Waiting");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-                    String line;
+                    //String line;
 
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    String line = new String(buffer, 0, bytesRead);
+                    System.out.println(line);
+                }
 
             }
         System.out.println("Listening is closed");
