@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     static Class<?> gamepadClass;
+    static String host = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +95,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        findViewById(R.id.button).setOnClickListener(view -> {
-            Intent start = new Intent(this,GameplayActivity.class);
-            this.startActivity(start);
-        });
-
     }
 
     private void loadSharedPreferences() {
@@ -119,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.button).setOnClickListener(view ->
         {
-            prefs.edit().putString("link", et_link.getText().toString()).apply();
+            host = et_link.getText().toString();
+            prefs.edit().putString("link", host).apply();
             loadClass();
             startConnection();
             startIntent();
@@ -268,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startIntent() {
+        Intent start = new Intent(this,GameplayActivity.class);
+        this.startActivity(start);
     }
 
 

@@ -68,19 +68,25 @@ public class ControllerDisplay extends View {
                 case MotionEvent.ACTION_POINTER_DOWN:
                 case MotionEvent.ACTION_DOWN:
                     key = (String)onTouch.invoke(controller,x,y,n);
-                    if(key!=null)
-                        Log.d("key","down: "+key);
+                    if(key!=null) {
+                        Log.d("key", "down: " + key);
+                        GameplayActivity.send.add("down:"+key);
+                    }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     key = (String)onMove.invoke(controller,x,y,n);
-                    if(key!=null)
-                        Log.d("key","move: "+key);
+                    if(key!=null) {
+                        Log.d("key", "move: " + key);
+                        GameplayActivity.send.add("move"+key);
+                    }
                     break;
                 case MotionEvent.ACTION_POINTER_UP:
                 case MotionEvent.ACTION_UP:
                     key = (String)onRelease.invoke(controller,x,y,n);
-                    if(key!=null)
-                        Log.d("key","up: "+key);
+                    if(key!=null) {
+                        Log.d("key", "up: " + key);
+                        GameplayActivity.send.add("up:"+key);
+                    }
                     v.performClick();
                     break;
             }

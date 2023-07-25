@@ -18,7 +18,6 @@ def handle_client(client_socket, client_address):
 
     while True:
         try:
-
             ready_to_read, _, _ = select.select([client_socket], [], [], 0)
             if ready_to_read:
                 data = client_socket.recv(1024)
@@ -36,12 +35,15 @@ def handle_client(client_socket, client_address):
                     print("receiver is connected")
                     break
                 else:
-                    print("nuthin")
+                    if connections["sender"] == client_socket:
+                        process_sender(data)
+                    elif connections["receiver"] == client_socket:
+                        process_receiver(data, client_socket)
 
                 if not data:
                     break
             else:
-                #print("super nuthin")
+                # print("super nuthin")
                 pass
 
         except RuntimeError as e:
@@ -51,6 +53,15 @@ def handle_client(client_socket, client_address):
     clients.remove(client_socket)
     client_socket.close()
     print(f"Соединение с {client_address} закрыто")
+
+
+def process_sender(data):
+    pass
+
+
+def process_receiver(data, socket):
+    socket.send(data)
+    pass
 
 
 def start_server():

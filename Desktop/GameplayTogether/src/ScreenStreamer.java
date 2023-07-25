@@ -14,6 +14,8 @@ public class ScreenStreamer {
 
     private boolean isWaiting = true;
 
+    private int status = 0;
+
     private void setUp(String url, int bitrate, int audioBitrate, int sampleRate) {
         this.url = url;
         this.bitrate = bitrate;
@@ -52,50 +54,49 @@ public class ScreenStreamer {
 
     public boolean startConnection(String hostname, int port)
     {
-        try (Socket socket = new Socket(hostname, port)) {
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
+        new Thread(()-> {
+            try (Socket socket = new Socket(hostname, port)) {
+                OutputStream output = socket.getOutputStream();
+                PrintWriter writer = new PrintWriter(output, true);
 
-            String text = "sender";
-            writer.println(text);
-            System.out.println("Connection data sent!");
+                String text = "sender";
+                writer.println(text);
+                System.out.println("Connection data sent!");
 
-            startWaiting(hostname,port);
-            System.out.println("is waiting for new messages now");
+                startWaiting(output,writer,socket.getInputStream());
+                System.out.println("is waiting for new messages now");
 
-        } catch (UnknownHostException ex) {
-            System.out.println("There is no such server: " + ex.getMessage());
-            return false;
-        } catch (IOException ex) {
-            System.out.println("Input-Output error: " + ex.getMessage());
-            return false;
-        }
+            } catch (UnknownHostException ex) {
+                System.out.println("There is no such server: " + ex.getMessage());
+                status = -1;
+            } catch (IOException ex) {
+                System.out.println("Input-Output error: " + ex.getMessage());
+                status = -1;
+            }
+        });
 
-        return true;
+        while(status==0){}
+
+        return status>1;
     }
 
-    public void startWaiting(String hostname, int port)
-    {
-        new Thread(()->{
+    public void startWaiting(OutputStream output, PrintWriter writer,InputStream input) throws IOException {
+
+            status = 1;
+
             while (isWaiting)
             {
-                try (Socket socket = new Socket(hostname, port)) {
-                    InputStream input = socket.getInputStream();
+
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
                     String line;
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
                     }
-                } catch (UnknownHostException ex) {
-                    System.out.println("Сервер не найден: " + ex.getMessage());
-                    isWaiting = false;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+
             }
-            System.out.println("Listening is closed");
-        }).start();
+        System.out.println("Listening is closed");
+
     }
 
     public void stop()
