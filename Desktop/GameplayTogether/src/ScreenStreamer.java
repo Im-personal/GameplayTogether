@@ -73,11 +73,11 @@ public class ScreenStreamer {
                 System.out.println("Input-Output error: " + ex.getMessage());
                 status = -1;
             }
-        });
+        }).start();
 
         while(status==0){}
 
-        return status>1;
+        return status>0;
     }
 
     public void startWaiting(OutputStream output, PrintWriter writer,InputStream input) throws IOException {

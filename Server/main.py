@@ -40,8 +40,8 @@ def handle_client(client_socket, client_address):
                     elif connections["receiver"] == client_socket:
                         process_receiver(data, client_socket)
 
-                if not data:
-                    break
+                #if not data:
+                #    break
             else:
                 # print("super nuthin")
                 pass
