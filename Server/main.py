@@ -28,12 +28,12 @@ def handle_client(client_socket, client_address):
                     connections["sender"] = client_socket
                     client_socket.sendall(code("Connected!"))
                     print("sender is connected")
-                    break
+                    continue
                 elif "receiver" in strdata:
                     connections["receiver"] = client_socket
                     client_socket.sendall(code("Connected!"))
                     print("receiver is connected")
-                    break
+                    continue
                 else:
                     if connections["sender"] == client_socket:
                         process_sender(data)
