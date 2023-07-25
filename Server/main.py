@@ -38,7 +38,7 @@ def handle_client(client_socket, client_address):
                     if connections["sender"] == client_socket:
                         process_sender(data)
                     elif connections["receiver"] == client_socket:
-                        process_receiver(data, client_socket)
+                        process_receiver(data)
 
                 #if not data:
                 #    break
@@ -60,9 +60,9 @@ def process_sender(data):
     pass
 
 
-def process_receiver(data, socket):
+def process_receiver(data):
     print("process_receiver")
-    socket.sendall(data)
+    connections["sender"].sendall(data)
     pass
 
 
