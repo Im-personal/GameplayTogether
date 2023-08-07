@@ -1,12 +1,53 @@
 import socket
 import threading
 
+import asyncio
+import logging
+from pyrtmp import StreamClosedException, RTMPProtocol
+from pyrtmp.messages import SessionManager
+from pyrtmp.messages.audio import AudioMessage
+from pyrtmp.messages.command import NCConnect, NCCreateStream, NSPublish, NCResult
+
 import select
+from pyrtmp.messages.video import VideoMessage
 
 clients = []
 
 connections = {}
 
+async def handle_stream(stream):
+    try:
+        while True:
+            message = await stream.read_message()
+            if isinstance(message, AudioMessage):
+                # Отправьте аудио-сообщение другому пользователю
+                pass
+            elif isinstance(message, VideoMessage):
+                # Отправьте видео-сообщение другому пользователю
+                pass
+    except StreamClosedException:
+        # Обработка закрытия потока
+        pass
+
+async def handle_session(session):
+    # Обработка сессии RTMP
+    async for message in session:
+        if isinstance(message, NCConnect):
+            # Отправка сообщения NCConnectResult в ответ на соединение
+            await session.send(NCConnectResult())
+        elif isinstance(message, NCCreateStream):
+            # Создание потока и запуск обработки потока
+            stream = await session.create_stream()
+            asyncio.ensure_future(handle_stream(stream))
+        elif isinstance(message, NSPublish):
+            # Отправка сообщения NSPublish в ответ на команду NSPublish
+            await session.send(NSPublish())
+
+async def main():
+    # Создание RTMP-сервера и обработка входящих сессий
+    async with RTMPProtocol.create_server(('0.0.0.0', 1935)) as server:
+        async for session in server:
+            asyncio.ensure_future(handle_session(session))
 
 def code(text):
     return text.encode('utf-8')

@@ -1,3 +1,4 @@
+import org.checkerframework.checker.units.qual.C;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
@@ -14,7 +15,9 @@ public class ScreenStreamer {
 
     private boolean isWaiting = true;
 
-    private int status = 0;
+    private volatile int status = 0;
+
+    private ComputerController computerController = new ComputerController();
 
     private void setUp(String url, int bitrate, int audioBitrate, int sampleRate) {
         this.url = url;
@@ -75,7 +78,9 @@ public class ScreenStreamer {
             }
         }).start();
 
-        while(status==0){}
+        while (status == 0) {
+            Thread.onSpinWait();
+        }
 
         return status>0;
     }
@@ -95,6 +100,9 @@ public class ScreenStreamer {
                 int bytesRead;
                 while ((bytesRead = input.read(buffer)) != -1) {
                     String line = new String(buffer, 0, bytesRead);
+
+                    computerController.invoke(line);
+
                     System.out.println(line);
                 }
 
